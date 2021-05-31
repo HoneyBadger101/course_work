@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="css/bootstrap.css">
+        <link rel="stylesheet" href="css/custom.css">
+
+        <title>Population changes</title>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""/>
+        <!-- Make sure you put this AFTER Leaflet's CSS -->
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+        
+    </head>
+    <body>
+
+        <div class="container">
+            <div class="jumbotron text-center">
+              <h1>Mortality and Morbidity factors in Latvia 2014</h1>
+            </div>
+        </div>      
+
+        <div id="map"style="width: 1490px; height: 600px"></div>
+
+    <script>
+        var mymap = L.map('map').setView([56.946285, 24.105078], 8);
+			
+			var baseMap = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+				maxZoom: 19,
+				attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+				'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+				id: 'mapbox/streets-v11',
+				tileSize: 512,
+				zoomOffset: -1
+			}).addTo(mymap);
+
+            var admin = L.tileLayer.wms('https://dpps.viss.gov.lv/DPPS.REQ/URN_IVIS_100001_ISS-VIDM-WMS_ATR_02022021-v1-0/guest/URN_IVIS_100273_LIC-EB3E6FD85096D1489BACDA09E746CFC3?', {
+				layers: '0',
+				version: '1.3.0',
+				format: 'image/png',
+				transparent: true
+			});
+
+            var violence = L.tileLayer.wms('https://dpps.viss.gov.lv/DPPS.REQ/URN_IVIS_100001_ISS-VM.SPKC-Mortality_WMS-v1-0/guest/URN_IVIS_100273_LIC-7C4E95C33AEA0D4C925E8F96DB8BD9F6?' ,{
+                layers: '0',
+                version: '1.3.0',
+                format: 'image/png',
+                transparent: true
+            });
+
+            var transport = L.tileLayer.wms('https://dpps.viss.gov.lv/DPPS.REQ/URN_IVIS_100001_ISS-VM.SPKC-Mortality_WMS-v1-0/guest/URN_IVIS_100273_LIC-7C4E95C33AEA0D4C925E8F96DB8BD9F6?' ,{
+                layers: '2',
+                version: '1.3.0',
+                format: 'image/png',
+                transparent: true
+            });
+
+            var suicides = L.tileLayer.wms('https://dpps.viss.gov.lv/DPPS.REQ/URN_IVIS_100001_ISS-VM.SPKC-Mortality_WMS-v1-0/guest/URN_IVIS_100273_LIC-7C4E95C33AEA0D4C925E8F96DB8BD9F6?' ,{
+                layers: '1',
+                version: '1.3.0',
+                format: 'image/png',
+                transparent: true
+            });
+
+            var hiv = L.tileLayer.wms('https://dpps.viss.gov.lv/DPPS.REQ/URN_IVIS_100001_ISS-VM.SPKC-Disease_Incidence_WMS-v1-0/guest/URN_IVIS_100273_LIC-B725F52E28F3A14ABA67DCAA76040B46?', {
+                layers: '0',
+                version: '1.3.0',
+                format: 'image/png',
+            });
+
+            var alcohol = L.tileLayer.wms('https://dpps.viss.gov.lv/DPPS.REQ/URN_IVIS_100001_ISS-VM.SPKC-Disease_Incidence_WMS-v1-0/guest/URN_IVIS_100273_LIC-B725F52E28F3A14ABA67DCAA76040B46?', {
+                layers: '8',
+                version: '1.3.0',
+                format: 'image/png',
+            });
+
+            var addictions = L.tileLayer.wms('https://dpps.viss.gov.lv/DPPS.REQ/URN_IVIS_100001_ISS-VM.SPKC-Disease_Incidence_WMS-v1-0/guest/URN_IVIS_100273_LIC-B725F52E28F3A14ABA67DCAA76040B46?', {
+                layers: '7',
+                version: '1.3.0',
+                format: 'image/png',
+            });
+
+            var depression = L.tileLayer.wms('https://dpps.viss.gov.lv/DPPS.REQ/URN_IVIS_100001_ISS-VM.SPKC-Disease_Incidence_WMS-v1-0/guest/URN_IVIS_100273_LIC-B725F52E28F3A14ABA67DCAA76040B46?', {
+                layers: '16',
+                version: '1.3.0',
+                format: 'image/png',
+            });
+
+            var baseMaps = {
+                "Normal": baseMap,
+                "Violence deaths": violence,
+                "Traffic accidents": transport,
+                "Suicides": suicides,
+                "HIV infection": hiv,
+                "Alcohol addiction": alcohol,
+                "Different substances addictions": addictions,
+                "Depression": depression
+            };
+
+            var overlayMaps = {
+				"Admin": admin
+			};
+
+            L.control.layers(baseMaps, overlayMaps).addTo(mymap);
+            
+    </script>
+        <div class="row">
+            <div class="col-lg"><span class="badge bg-info"></span>Legends</span></div>
+            <div class="col-lg-1"><span class="badge bg-success">Low rate</span></div>
+            <div class="col-lg-1"><span class="badge bg-warning text-dark">Medium rate</span></div>
+            <div class="col-lg-1"><span class="badge bg-danger">High rate</span></div>
+        </div>
+        <footer class="page-footer font-small blue">
+            <div class="footer-copyright text-center py-3">© 2021 Artis Tauriņš</div>
+        </footer>
+    </body>
+</html>
